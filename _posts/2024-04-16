@@ -1,0 +1,67 @@
+---
+title: Solidity notes
+date: 2024-04-16 
+categories: [solidity]
+tags: [solidity]     
+---
+
+### Pure and View functions
+Pure when no data fetched from the blockchain like adding two numbers and returning it.
+View used when reading from the blockchain.
+
+---
+
+### Public, external, internal and private
+
+public - all can access
+
+external - Cannot be accessed internally, only externally
+
+internal - only this contract and contracts deriving from it can access
+
+private - can be accessed only from this contract
+
+---
+
+### Receive ether payable
+
+```solidity
+function recEther() public payable {
+      toepa[msg.sender] += msg.value;
+}
+```
+
+--- 
+
+### Abi Encode
+
+```solidity
+function getCalldata() public view returns (bytes memory){
+        return abi.encodeWithSignature("getBalance(address)", msg.sender);
+}
+```
+
+> Returns 0xf8b2cb4f0000000000000000000000004b20993bc481177ec7e8f571cecae8a9e22c02db
+> The first four bytes of data are a function selector, where the selector is derived from a hash of the function name (source code) and arguments, truncated to four bytes.
+
+0xf8b2cb4f - Represents "getBalance(address)" called the Method ID
+
+> When "getBalance(address)" is hashed with with Keccak256 https://emn178.github.io/online-tools/keccak_256.html we get same result.
+
+```solidity
+function decode(bytes calldata payload) public pure returns (address) {
+        return abi.decode(payload[4:], (address));
+}
+```
+> Returns the address of the msg.sender from earlier.
+
+---
+
+msg.data = function selector (the function which is called) + function arguments
+
+4 bytes selector + arguments
+
+
+
+
+    
