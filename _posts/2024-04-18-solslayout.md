@@ -168,7 +168,60 @@ Hmm looks interesting, isn't this exactly what we wanted? , give half the space 
 and
 0x00000000000000000000000000000017 which is also 32 characters 
 
-Now the variables being stored in the fast part and last part has something to do with endianess which we're not going to discuss here but I think you can understand what I've said so far.
+Now the variables being stored in the first part and last part has something to do with endianess which we're not going to discuss here but I think you can understand what I've said so far.
+
+---
+
+Now let's dive into mappings 
+
+A quick recap of mappings before it's layout:
+Instead of an explanation I'll show you an example 
+
+```
+mapping(address => uint) balance;
+balance[0x5B38Da6a701c568545dCfcB03FcB875f56beddC4] = 10;
+return balance[0x5B38Da6a701c568545dCfcB03FcB875f56beddC4];
+```
+
+And it returns the balance of the address.
+
+---
+
+Now let's getting into the storage part with an example contract.
+
+```
+// SPDX-License-Identifier: MIT
+// @author Jesper Kristensen (@cryptojesperk)
+pragma solidity 0.8;
+
+contract StorageLayout {
+    uint x = 2;
+    mapping(uint => uint) m;
+
+    function addToM(uint key, uint value) public {
+        m[key] = value;
+    }
+
+    // HELPER TO READ FROM STORAGE SLOTS
+    function readStorageSlot(uint256 i) public view returns (bytes32 content) {
+        assembly {
+            content := sload(i)
+        }
+    }
+
+    // HELPER TO GET THE SLOT INDEX OF A MAPPING'S VALUE UNDER IT'S GIVEN KEY
+    function getLocationOfMapping(uint mappingSlot, uint key) public pure returns (uint slot) {
+        // mappingSlot: the slot that the mapping itself sits in -> here: it's slot 1
+        // slot: the slot that the value will be sitting in, e.g.: m[key] = value --> value will sit in "slot."
+        return uint256(keccak256(abi.encode(key, mappingSlot)));
+    }
+}
+
+```
+
+As we can see that the value in slot0 is going to be 2 because it's the first declared but what about the mapping m?, It's size is increased dynamically meaning we just can't fix the 1st slot for the first key-value pair then next slot for another key-value pair.
+Because what if we store another variable name 'uint l' with a value let's say 20, and now you decided to add another key-value pair, where is this key-value pair going to be stored, the entire slots have to be moved now to store the key-value pair in the mapping which isn't obviously practical. So we need a much more smarter way to store these dynamic typa arrays.
+And solidity has a fantastic solution for it.
 
 
 
