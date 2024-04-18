@@ -50,7 +50,7 @@ F = 1111
 
 1 bytes = 8*1 bits = 8 bits = 1111111 bits = 0xFF 
 
-- Which is exactly 2 character long.
+- Which is exactly 2 character long in hex.
 
 32 bytes = 8*32 bits = 256 bits = 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 bits
 
@@ -59,7 +59,7 @@ F = 1111
 - That's pretty huge number but see that we've decreased the character length from the 200 range to a 100 range, now what if we convert that number to hex? 
 Which is  0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
-- Exactly 64 characters in length.
+- Exactly 64 characters in length in hex.
 
 So now we can represent large numbers with less number of characters.
 
