@@ -282,3 +282,75 @@ We get the output as '1075538825247905319473859858325928378844422289354637805531
 
 ---
 
+### Nested mappings
+
+A simple bank contract that allows users to store money in different banks with the same account. (Just for logical understanding of nested mappings)
+
+```
+contract Banks {
+    mapping(uint => mapping(address => uint)) accountNumber;
+
+    function setBalance(uint bankNumber, address _addr, uint balance) public {
+        accountNumber[bankNumber][_addr] = balance;
+        
+    }
+
+    function getBalance(uint bankNumber, address _addr) view public returns (uint) {
+        return accountNumber[bankNumber][_addr];
+    }
+
+}
+```
+
+Now below is an example contract to explain about the location of nested mappings.
+
+```
+pragma solidity 0.8;
+
+contract Banks {
+    mapping(uint => mapping(address => uint)) accountNumber;
+
+    function setBalance(uint bankNumber, address _addr, uint balance) public {
+        accountNumber[bankNumber][_addr] = balance;
+        
+    }
+
+    function getBalance(uint bankNumber, address _addr) view public returns (uint) {
+        return accountNumber[bankNumber][_addr];
+    }
+
+    function readStorageSlot(uint256 i) public view returns (bytes32 content) {
+        assembly {
+            content := sload(i)
+        }
+    }
+
+    function getLocationOfAddress(uint mappingSlot, uint bankNumber) public pure returns (uint slot) {
+        return uint256(keccak256(abi.encode(bankNumber, mappingSlot)));
+    }
+
+    function getLocationOfValue(uint mappingSlot, address _addr) public pure returns (uint slot) {
+        return uint256(keccak256(abi.encode(_addr, mappingSlot)));
+    }
+
+}
+
+```
+
+accountNumber[bankNumber][_addr] = balance;
+
+Now we're going to call setBalance with (100, 0xCc8188e984b4C392091043CAa73D227Ef5e0d0a7, 500)
+
+;The account has 500 balance in the bank with number 100.
+
+So first of all in which slot is the mapping stored?, yes slot0.
+
+Now if we hash the bankNumber with slot0 we get location of where the new mapping is stored.
+
+Calling getLocationOfAddress(0, 100) returns 71336474783394080197321810469482573231222347487862131686619557077352214456178 which is the slot where the new mapping is stored.
+
+So it more like restarts the cycle, now we need to call getLocationOfValue(0xCc8188e984b4C392091043CAa73D227Ef5e0d0a7, 71336474783394080197321810469482573231222347487862131686619557077352214456178) which finally returns the value.
+
+
+
+
