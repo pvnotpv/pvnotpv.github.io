@@ -73,7 +73,7 @@ So I guess now we can get into solidity
 Just imagine solidity storage layout as an extremely long boxes chained together and we can store data in those boxes , here is a visual 
 
 
-![slots](/images/avatar.png){: width="972" height="589" }
+![slots](/images/table.png){: width="972" height="589" }
 
 
 But how long are these boxes going to be ?, The maximum length of this storage “array” is 2²⁵⁶-1, which means our chained boxes is going to be extremely long , but really how big?
