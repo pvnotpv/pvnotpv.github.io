@@ -67,7 +67,7 @@ Just imagine solidity storage layout as an extremely long boxes chained together
 
 
 |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  10 |  11 | 12  |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 
 
 But how long are these boxes going to be ?, The maximum length of this storage “array” is 2²⁵⁶-1, which means our chained boxes is going to be extremely long , but really how big?
