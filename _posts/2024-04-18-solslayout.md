@@ -14,8 +14,8 @@ Sources I've used to learn this topic.
 - <https://coinsbench.com/solidity-layout-and-access-of-storage-variables-simply-explained-1ce964d7c738>
 - <https://docs.alchemy.com/docs/smart-contract-storage-layout>
 
-Now the sole reason why I made this post is becauase there was some stuffs I found hard to understand like the stuffs with hexadecimal, padding and etc. 
-And it's highly recommended you learn stuffs from multiple sources and tutors , never from just a single source.
+Now the sole reason why I decided to make this post is becauase there was some stuffs I found hard to understand like the stuffs with hexadecimal, padding and etc. 
+Also it's highly recommended that you learn stuffs from multiple sources and tutors , never let alone from just a single source/tutor.
 
 #### A little about hexadecimal
 
@@ -134,7 +134,7 @@ contract StorageLayout {
         y = b;
     }
 
-    // Below function is from Jesper Kristensen video
+    // Below function is from Jesper Kristensen's video
 
     function readStorageSlot(uint256 i) public view returns (bytes32 content) {
         assembly {
@@ -225,11 +225,11 @@ balance[0x5B38Da6a701c568545dCfcB03FcB875f56beddC4] = 10;
 return balance[0x5B38Da6a701c568545dCfcB03FcB875f56beddC4];
 ```
 
-And it returns the balance of the address.
+And it returns the balance of the address which is 10.
 
 ---
 
-Now let's getting into the storage part with an example contract.
+Now let's get into the storage part with an example contract. The source code is from Jesper Kristensen's <https://www.youtube.com/watch?v=i_LwhlFNSkI&t=1817> video with slight modifications.
 
 ```
 // SPDX-License-Identifier: MIT
@@ -238,35 +238,47 @@ pragma solidity 0.8;
 
 contract StorageLayout {
     uint x = 2;
-    mapping(uint => uint) m;
+    mapping(uint => uint) acc;
+    uint y = 3;
 
     function addToM(uint key, uint value) public {
-        m[key] = value;
+        acc[key] = value;
     }
 
-    // HELPER TO READ FROM STORAGE SLOTS
     function readStorageSlot(uint256 i) public view returns (bytes32 content) {
         assembly {
             content := sload(i)
         }
     }
 
-    // HELPER TO GET THE SLOT INDEX OF A MAPPING'S VALUE UNDER IT'S GIVEN KEY
     function getLocationOfMapping(uint mappingSlot, uint key) public pure returns (uint slot) {
-        // mappingSlot: the slot that the mapping itself sits in -> here: it's slot 1
-        // slot: the slot that the value will be sitting in, e.g.: m[key] = value --> value will sit in "slot."
         return uint256(keccak256(abi.encode(key, mappingSlot)));
     }
 }
 
 ```
 
-As we can see that the value in slot0 is going to be 2 because it's the first declared but what about the mapping m?, It's size is increased dynamically meaning we just can't fix the 1st slot for the first key-value pair then next slot for another key-value pair.
-Once more, 
+As we can see that the value in slot0 is going to be 2 because it's the first declared. 
+And now what about the next slot? which is not a single variable but a mapping. So the thing about mapping is that it's size is increased dynamically meaning; just think about the variable 'y' which is declared after the mapping it's obviously going to be stored in the next slot after mapping which is slot2. What do you think is gonna happen if we add a key-value pair to the mapping, is the slot going to be pushed; in the sense like the variable 'y' to slot3? No. Solidity has an amazing solution for this problem. 
 
+Ok let's start with an example, acc[3] = 7;
 
-Because what if we store another variable name 'uint l' with a value let's say 20, and now you decided to add another key-value pair, where is this key-value pair going to be stored, the entire slots have to be moved now to store the key-value pair in the mapping which isn't obviously practical. So we need a much more smarter way to store these dynamic typa arrays.
-And solidity has a fantastic solution for it.
+(acc is currently in slot1, the key is 3 and the value is 7)
 
+This 7 is going to be stored in a slot number after a particular operation. 
 
+Which is the key is hased with the particular slot.
+
+```
+function getLocationOfMapping(uint mappingSlot, uint key) public pure returns (uint slot) {
+        return uint256(keccak256(abi.encode(key, mappingSlot)));
+}
+```
+If we provide mappingSlot with 1 (which is the mapping of acc) and key as 3 , we get this output '56988696150268759067033853745049141362335364605175666696514897554729450063371' , this is the place where the value 7 is stored. Interesting isn't it.
+
+Next let's add another key-value pair acc[4] = 2
+
+We get the output as '107553882524790531947385985832592837884442228935463780553192851707863573624387' , which has no relation with the previous slot even though we just increased the value of key by one.
+
+---
 
