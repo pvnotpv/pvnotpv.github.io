@@ -56,7 +56,7 @@ F = 1111
 
 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 bits when represented in decimal = 115,792,089,237,316,195,423,570,985,008,687,907,853,269,984,665,640,564,039,457,584,007,913,129,639,936
 
-- That's pretty huge number but see that we've decreased the character length from the 200 range to a 100 range, now what if we convert that number to hex? 
+- That's pretty huge number but see that we've decreased the character length from the 256 to a 103ish , now what if we convert that number to hex? 
 Which is  0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
 - Exactly 64 characters in length in hex.
