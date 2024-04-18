@@ -6,6 +6,17 @@ tags: [solidity,solidityslots,soliditylayout]
 descrption: In depth explanation of solidity storage and layout.
 ---
 
+Sources I've used to learn this topic.
+
+- https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html
+- https://www.youtube.com/watch?v=i_LwhlFNSkI&t=1817
+- https://medium.com/@flores.eugenio03/exploring-the-storage-layout-in-solidity-and-how-to-access-state-variables-bf2cbc6f8018
+- https://coinsbench.com/solidity-layout-and-access-of-storage-variables-simply-explained-1ce964d7c738
+- https://docs.alchemy.com/docs/smart-contract-storage-layout
+
+Now the sole reason why I made this post is becauase there was some stuffs I found hard to understand like the stuffs with hexadecimal, padding and etc. 
+And it's highly recommended you learn stuffs from multiple sources and tutors , never from just a single source.
+
 #### A little about hexadecimal
 
 - Hexadecimal uses sixteen distinct symbols, most often the symbols "0"–"9" to represent values 0 to 9, and "A"–"F" (or alternatively "a"–"f") to represent values from ten to fifteen.
@@ -70,8 +81,7 @@ So now we can represent large numbers with less number of characters.
 
 So I guess now we can get into solidity
 
-Just imagine solidity storage layout as an extremely long boxes chained together and we can store data in those boxes , here is a visual 
-
+Just imagine solidity storage layout as boxes chained together and we can store data in those boxes , here is a visual 
 
 ![slots](/images/table.png)
 
@@ -112,25 +122,20 @@ The variable rand is going to be stored in the next slot that is slot 1.
 
 Now let's go for a practical explanation. 
 
-Here's a simple contract from Jesper Kristensen video 
-
 ```
-// SPDX-License-Identifier: MIT
-// @author Jesper Kristensen (@cryptojesperk)
 pragma solidity 0.8;
 
 contract StorageLayout {
     uint256 x;
-    uint128 y;
-    uint128 z;
+    uint256 y;
 
-    function set(uint newX, uint128 newY, uint128 newZ) public {
-        x = newX;
-        y = newY;
-        z = newZ;
+    function setVar(uint256 a, uint256 b) public {
+        x = a;
+        y = b;
     }
 
-    // HELPER TO READ FROM STORAGE SLOTS
+    // Below function is from Jesper Kristensen video
+
     function readStorageSlot(uint256 i) public view returns (bytes32 content) {
         assembly {
             content := sload(i) // just a low level function to get the value stored in slots. if i=1 then it outputs the value stored in slot 1.
@@ -139,16 +144,16 @@ contract StorageLayout {
 }
 ```
 
-We're going to give inputs as 55,23,67 so 
-x = 55, y = 23, z = 67
+We're going to give inputs as 55,23 so 
+x = 55, y = 23 
 
-Note here that x is uint256 but y and z are 128 bits each, let's worry about that later; now let's draw the storage layout for x
+Storage layout for x and y:
 
-|    55  | 
-|   ---  | 
-| Slot0  | 
+|    55  |  23   |
+|   ---  | ---   |
+| Slot0  | Slot1 |
 
-Now if I run the readStorage() function with input 0 I'm going to get the value stored in slot0, what do you think that's gonna be ?, yeah exactly the value of x.
+Now if I run the readStorage() function with input 0 I'm going to get the value stored in slot0, what do you think that's gonna be ?, yeah exactly; the value of x.
 
 And it returns 0x0000000000000000000000000000000000000000000000000000000000000037 , but it's showing 37! and what's with all the 0s.
 
@@ -156,14 +161,51 @@ Ok first of all this is a hexadecimal number and now if we represent 55 in hex i
 
 - A maximum of 256 bits can be stored in a slot but all we're doing is just representing the number 55 and it's only a few bits long so what to do with the rest of the space?, yep fill it up with 0s, it's called as padding. Now you may ask why not give the space to other variables but we've already declared the variable x as 256 bits long so it should be 256 bits long, and to make it 256 bits long we just fill it up with 0s.
 
-- Now after coming to the next variables you'll have a lot more deeper understading. As you can see that the variables y and z are 128 bits each and a slot can fit upto 256 bits so why not just divide a single slot and provide half the space to y and the other half to z, yep that's exactly what's going to happen. And just like above we have 128 bits for each variable and it should be 128 bits long but what if our number is just a few bits long?, we fill it up with 0s.
+Same goes for the variable y , it returns 0x0000000000000000000000000000000000000000000000000000000000000017 which is 23 in decimal.
 
-So above we gave 23 for y and 67 for z and if we run readStorageSlot() it's giving us this output
+Aight , now let's declare another two variables named 'z' and 't' but this time let's declare them as 128 bits long. 
+
+```
+pragma solidity 0.8;
+
+contract StorageLayout {
+    uint256 x;
+    uint256 y;
+    uint128 z;
+    uint128 t;
+
+    function setVar(uint256 a, uint256 b) public {
+        x = a;
+        y = b;
+    }
+
+    function setnewVar(uint128 a, uint128 b) public {
+        z = a;
+        t = b;
+    }
+
+    function readStorageSlot(uint256 i) public view returns (bytes32 content) {
+        assembly {
+            content := sload(i) // just a low level function to get the value stored in slots. if i=1 then it outputs the value stored in slot 1.
+        }
+    }
+}
+```
+The new variables can store a max 128 bit number and which is the max 128 bit number in decimal ? 
+111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 = 680564733841876926926749214863536422911 in decimal, I'm not really how accurate the conversion is but you can see that it's a pretty big number. 
+
+128 + 128 = 256
+
+Now the doubt you've probably had earlier , why wasting space by filling up with zeros? can't we instead like somehow decrease the size of the variable or just store multiple variables in a single slot. Yep that's what we just did, we used a 128bit variable.
+
+- As you can see that the variables z and t are 128 bits each and a slot can fit upto 256 bits so why not just divide a single slot and provide half the space to z and the other half to t, yep that's exactly what's going to happen. But wait what if our number is just a few bits long?. Oops looks like we again gotta fill it up with zeroes but either way it's better than before.
+
+So if we give 23 for z and 67 for t and if we run readStorageSlot() it's giving us this output
 0x0000000000000000000000000000004300000000000000000000000000000017
 
 0x43 = 67 and 0x17 = 23
 
-Hmm looks interesting, isn't this exactly what we wanted? , give half the space to y and for z.
+Hmm looks interesting, isn't this exactly what we wanted? , give half the space to 'z' and other half to 't' of a single slot.
 0x00000000000000000000000000000043 which is 32 characters
 and
 0x00000000000000000000000000000017 which is also 32 characters 
@@ -220,6 +262,9 @@ contract StorageLayout {
 ```
 
 As we can see that the value in slot0 is going to be 2 because it's the first declared but what about the mapping m?, It's size is increased dynamically meaning we just can't fix the 1st slot for the first key-value pair then next slot for another key-value pair.
+Once more, 
+
+
 Because what if we store another variable name 'uint l' with a value let's say 20, and now you decided to add another key-value pair, where is this key-value pair going to be stored, the entire slots have to be moved now to store the key-value pair in the mapping which isn't obviously practical. So we need a much more smarter way to store these dynamic typa arrays.
 And solidity has a fantastic solution for it.
 
