@@ -8,11 +8,11 @@ descrption: In depth explanation of solidity storage and layout.
 
 Sources I've used to learn this topic.
 
-- https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html
-- https://www.youtube.com/watch?v=i_LwhlFNSkI&t=1817
-- https://medium.com/@flores.eugenio03/exploring-the-storage-layout-in-solidity-and-how-to-access-state-variables-bf2cbc6f8018
-- https://coinsbench.com/solidity-layout-and-access-of-storage-variables-simply-explained-1ce964d7c738
-- https://docs.alchemy.com/docs/smart-contract-storage-layout
+- <https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html>
+- <https://www.youtube.com/watch?v=i_LwhlFNSkI&t=1817>
+- <https://medium.com/@flores.eugenio03/exploring-the-storage-layout-in-solidity-and-how-to-access-state-variables-bf2cbc6f8018>
+- <https://coinsbench.com/solidity-layout-and-access-of-storage-variables-simply-explained-1ce964d7c738>
+- <https://docs.alchemy.com/docs/smart-contract-storage-layout>
 
 Now the sole reason why I made this post is becauase there was some stuffs I found hard to understand like the stuffs with hexadecimal, padding and etc. 
 And it's highly recommended you learn stuffs from multiple sources and tutors , never from just a single source.
