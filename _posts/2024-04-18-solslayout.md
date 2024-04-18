@@ -163,3 +163,7 @@ and
 0x00000000000000000000000000000017 which is also 32 characters 
 
 Now the variables being stored in the fast part and last part has something to do with endianess which we're not going to discuss here but I think you can understand what I've said so far.
+
+| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 |   |   |
+
+|---|---|---|---|---|---|---|---|---|---|---|
