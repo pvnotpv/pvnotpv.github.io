@@ -1,5 +1,5 @@
 ---
-title: Solidity Storage - Slot and layout
+title: Solidity Storage - Slots and layout
 date: 2024-04-18
 categories: [solidity]
 tags: [solidity,solidityslots,soliditylayout]     
