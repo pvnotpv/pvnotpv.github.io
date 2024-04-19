@@ -62,10 +62,10 @@ contract BankAttack {
 - Bank contract is deployed, users send money to it and it has a total of 7 eth.
 - Attacker deposit say 1 ether, so now attacker has a balance of 1 ether.
 
-- BankAttacker calls the attack() function , it calls withdraw function since 'balance[msg.sender] != 0' is true.
+- BankAttacker calls the attack() function , it calls withdraw function since "balance[msg.sender] != 0" is true.
 - Withdraw sends 1 ether to attackers receive function and the withdraw call frame after execution is paused until attacker's receive is executed.
-  
-- Now the receive function calls withdraw again, 'balance[msg.sender] != 0' is still true because it comes after the call frame.
+
+- Now the receive function calls withdraw again, "balance[msg.sender] != 0" is still true because it comes after the call frame.
 - The withdraw function again sends 1 ether to attackers receive function. Again the receive function calls withdraw(), still the balance is not updated.
 
-So until 'address(bank).balance >= 1 ether' is true this more like a loop keeps on going. The Bank Contract is no drained and the attacker has 8 eth now.
+So until "address(bank).balance >= 1 ether" is true this more like a loop keeps on going. The Bank Contract is no drained and the attacker has 8 eth now.
