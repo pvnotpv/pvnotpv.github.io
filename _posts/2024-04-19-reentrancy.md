@@ -1,5 +1,5 @@
 ---
-title: Solidity Attacks : Re-Entrancy
+title: Solidity Attacks => Re-Entrancy
 date: 2024-04-19 
 categories: [solidity]
 tags: [solidityattacks]     
