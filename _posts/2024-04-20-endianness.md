@@ -5,6 +5,8 @@ categories: [solidity]
 tags: [solidity]     
 ---
 
+Continuation of - <https://pvnotpv.github.io/posts/solslayout/>
+
 Sources: 
 - <https://www.freecodecamp.org/news/what-is-endianness-big-endian-vs-little-endian/>
 - <https://web.archive.org/web/20210404165837/https://jeancvllr.medium.com/solidity-tutorial-all-about-bytes-9d88fdb22676>
