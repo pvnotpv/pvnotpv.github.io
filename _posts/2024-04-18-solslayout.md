@@ -351,6 +351,7 @@ Calling getLocationOfAddress(0, 100) returns 71336474783394080197321810469482573
 
 So it more like restarts the cycle, now we need to call getLocationOfValue(0xCc8188e984b4C392091043CAa73D227Ef5e0d0a7, 71336474783394080197321810469482573231222347487862131686619557077352214456178) which finally returns the value.
 
+---
 
-
+Continue: <https://pvnotpv.github.io/posts/endianness/>
 
