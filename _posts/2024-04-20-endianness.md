@@ -141,5 +141,51 @@ Slot1 which is str   -> 0x706f64610000000000000000000000000000000000000000000000
 ```
 
 'poda' in hex 70 6F 64 61 
-
 ---
+
+### Bytes
+
+```
+pragma solidity ^0.8.0; 
+  
+contract BytesContract {
+
+    bytes1 n;
+    function setVar(bytes1 a) public returns (bytes1) {
+        n = a;
+        return n;
+    }
+
+}
+```
+bytes1 means the max value the 'n' variable can hold is a single byte and how much is a single byte?, 8 bits or the max value is 11111111, which is 255 in decimal and 0xFF in hex.
+
+so 0xFF is the max value this variable can hold.
+
+What do you think is gonna happen if we provide 256 to this function?, yep it throws an error because we cannot represent the number within a single byte
+
+```
+transact to FixedSizeBytesExample.setVar errored: Error encoding arguments: Error: hex data is odd-length (argument="value", value="0x100", code=INVALID_ARGUMENT, version=bytes/5.7.0)
+```
+0x100 is 256 in hex.
+
+--- 
+
+Now what about 2 bytes?
+
+The max number we can represent is 65535 , which is 0xFFFF in hex.
+
+```
+contract BytesContract {
+
+    bytes2 n;
+    function setVar(bytes2 a) public returns (bytes2) {
+        n = a;
+        return n;
+    }
+
+}
+```
+
+If we give it 0x10000 , which is 65536 it returns an error.
+
