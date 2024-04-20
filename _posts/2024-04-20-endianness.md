@@ -3,6 +3,7 @@ title: Solidity - Endianess and Bytes explained
 date: 2024-04-16 
 categories: [solidity]
 tags: [solidity]     
+description: In depth-overview
 ---
 
 Continuation of - <https://pvnotpv.github.io/posts/solslayout/>
