@@ -129,6 +129,7 @@ Slot0 which is x     -> 0x000000000000000000000000000000000000000000000000000000
 ```
 
 23 in hex is 0x17
+
 24 in hex is 0x18
 
 So which is the least significant here ?, 7 right.
