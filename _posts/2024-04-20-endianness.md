@@ -189,3 +189,18 @@ contract BytesContract {
 
 If we give it 0x10000 , which is 65536 it returns an error.
 
+---
+
+### Type casting
+
+<https://medium.com/coinmonks/learn-solidity-lesson-22-type-casting-656d164b9991>
+
+- When converting from a larger integer type to a smaller one, the bits on the right are kept while the bits on the left are lost.
+
+```
+bytes4 value = 0x12345678;
+bytes1 smallValue = bytes1(value); // 0x12
+bytes5 largeValue = value; // 0x1234567800;
+```
+
+---
