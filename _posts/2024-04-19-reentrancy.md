@@ -3,6 +3,7 @@ title: Solidity Attacks => Re-Entrancy
 date: 2024-04-19 
 categories: [solidity]
 tags: [solidityattacks]     
+description: Re-entrancy attack explained
 ---
 
 Below is a vulnerable contract
