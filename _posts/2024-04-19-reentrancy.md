@@ -5,7 +5,7 @@ categories: [solidity]
 tags: [solidityattacks]     
 ---
 
-# TLDR; Unlimited money glitch 
+Below is a vulnerable contract
 
 ```
 pragma solidity ^0.8;
