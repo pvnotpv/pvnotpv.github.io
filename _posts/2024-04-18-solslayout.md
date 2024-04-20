@@ -3,7 +3,7 @@ title: Solidity Storage - Slots and layout
 date: 2024-04-18
 categories: [solidity]
 tags: [solidity,solidityslots,soliditylayout]     
-descrption: In depth explanation of solidity storage and layout.
+description: In depth explanation of solidity storage and layout starting from the basics of hexadecimal.
 ---
 
 Sources I've used to learn this topic.
