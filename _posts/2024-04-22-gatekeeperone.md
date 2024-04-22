@@ -8,6 +8,8 @@ description: Solution of this brainfuck level
 
 - This level has taught me enough pain and suffering, took almost half a day to solve and my eyes were completely dead.
 
+![dead](/images/day21.png)
+
 The contract: 
 
 ```
