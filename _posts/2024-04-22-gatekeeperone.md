@@ -171,5 +171,6 @@ The most important part here is that the gas opeartion also takes 2 gas, so when
 - Also you should enable optimization to 1000 and compile the contract with 0.8.12 compiler to the correct gas because , optimization and different compiler changes the number of opcodes which is going to change the gas count entirely.
 
 ```
+
 ```
 
