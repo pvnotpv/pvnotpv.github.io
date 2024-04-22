@@ -205,4 +205,4 @@ contract Meh {
 
 }
 ```
-- So the level was a real challenge but I've learned hella lot of stuffs about debugging , gas and general solidity in general.
+- So the level was a real challenge but I've learned hella lot of stuffs about debugging , gas and solidity in general.
