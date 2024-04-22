@@ -6,7 +6,7 @@ tags: [solidity,ethernaut]
 description: Solution of this brainfuck level
 ---
 
-- This level has taught me enough pain and suffering, took almost half a day to solve this challenge and my eyes were completely dead.
+- This level has taught me enough pain and suffering, took almost half a day to solve and my eyes were completely dead.
 
 The contract: 
 
@@ -170,7 +170,37 @@ The most important part here is that the gas opeartion also takes 2 gas, so when
 
 - Also you should enable optimization to 1000 and compile the contract with 0.8.12 compiler to the correct gas because , optimization and different compiler changes the number of opcodes which is going to change the gas count entirely.
 
-```
+Here's the final poc to solve the level.
+
+Remember you should compile with these options because you check the level's contract in etherscan and yea...
+
+<#lang=en&optimize=true&runs=1000&evmVersion=null&version=soljson-v0.8.12+commit.f00d7308.js>
 
 ```
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
+interface GatekeeperOne {
+    function enter(bytes8 _gateKey) external payable returns (bool);
+}
+
+contract Meh {
+    
+    GatekeeperOne kone;
+
+    constructor(address _addr) payable {
+        kone = GatekeeperOne(_addr);
+    }
+
+    function smendEther(uint _gas) public payable {
+        kone.enter{gas: _gas}(0x03000000000003cc);
+    }
+
+    receive() external payable { }
+
+    fallback() external payable { }
+
+
+}
+```
+- So the level was a real challenge but I've learned hella lot of stuffs about debugging , gas and general solidity in general.
