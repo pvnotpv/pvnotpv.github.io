@@ -4,6 +4,7 @@ date: 2024-04-14
 categories: [solidity,evm]
 tags: [evm,solidity]    
 description: In-depth explanation.
+pin: true
 ---
 
 Also posted at <https://ethereum.stackexchange.com/questions/76334/what-is-the-difference-between-bytecode-init-code-deployed-bytecode-creation/163307#163307>
