@@ -9,7 +9,7 @@ pin: true
 
 ---
 
-I've been kinda trying to figure this out for a few days now since there aren't any direct guides out there on how do to do this online. If you just want the final code it's in the end of this post.
+I've been kinda trying to figure this out for a few days now since there aren't any direct guides out there on how do to do this online. If you just want the final code it's in the end of the post.
 
 ---
 
