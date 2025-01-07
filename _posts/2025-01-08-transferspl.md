@@ -49,8 +49,9 @@ Minting 100000 tokens
 Signature: 2fFYZ6G3njH7pFF75LbLgFcJ4Uff3MbijsfiNb3F3ZuYcQnTaSzWV5WF3Fhcjb44nGEq9AGogQk7JfjFaDKCTHnF
 ```
 
-So let's start with creating a simple account named CustomPDA, using x and y parameters just for the sake of example.
+---
 
+Now let's create a new program using anchor init.
 ```rust
 #[account]
 pub struct CustomPda {
