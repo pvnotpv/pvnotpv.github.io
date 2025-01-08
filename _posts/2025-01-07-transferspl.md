@@ -227,7 +227,7 @@ msg!("The pda of the account after deriving is {}", pda);
 ### Calling the final function
 
 ```javascript
-const withdraw = await program.methods.withdraw(new anchor.BN(90000000000))
+const withdraw = await program.methods.withdraw(new anchor.BN(90000000000)) // 9 decimals
       .accounts({
         mint: mintAccount,
         toOwner: user,
@@ -237,4 +237,4 @@ const withdraw = await program.methods.withdraw(new anchor.BN(90000000000))
 console.log(withdraw)
 ```
 
-The Program transfers the particular amount of spl tokens from the PDA to the desired account, which is exactly what we wanted!!!
+#### The Program transfers the particular amount of spl tokens from the PDA to the desired account, which is exactly what we wanted!!!
