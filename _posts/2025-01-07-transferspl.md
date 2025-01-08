@@ -3,13 +3,13 @@ title: Solana - Transfering SPL-tokens from PDA accounts
 date: 2025-01-07
 categories: [solana]
 tags: [rust, anchorlang, solana]     
-description: Creating associated token account for a PDA and transferring spl tokens out of it.
+description: Creating an associated token account for a PDA and transferring spl tokens out of it.
 pin: true
 ---
 
 ---
 
-I've been kinda trying to figure this out for a few days now since there aren't any direct guides out there on how do to do this online. If you just want the final code it's in the end of the post.
+So I've been kinda trying to figure this out for a few days now since there aren't any direct guides out there on how do to do this, online. If you just want the final code it's at the end of this post.
 
 ---
 
@@ -18,9 +18,9 @@ Here's a quick brief on what we're going to do:
 
 ---
 
-Let's start by creating a new spl token using the command line tool.
+## Creating a new spl token and minting some tokens.
 
-```
+```bash
 ~> spl-token create-token
 Creating token Grg9sGgXYF6ej36AxP75Lm7P2UG3S4peEUTGQBom4Uoa under program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
 
@@ -32,7 +32,7 @@ Signature: 49vU6jSZEBia7tBfYHZoGFTzs9VeVxHE2nv7ThXDSocUmHRwfKNSnkk1JmkNeFXKHST6b
 
 Now let's create an associated token account for our account and mint some spl tokens.
 
-```
+```bash
 ~> spl-token create-account Grg9sGgXYF6ej36AxP75Lm7P2UG3S4peEUTGQBom4Uoa
 Creating account DoRvQ2vvuUrr73DP7HVj9bCujPHBMpaagYtQffi3iq8V
 
@@ -40,7 +40,7 @@ Signature: 57nbESbfqBRX7vzHTghU2sasRx6PJJGbnvoWdvuk68u2cThZhaEuckabEbQJbuQAZVyfj
 ```
 Minting some spl for the ata:
 
-```
+```bash
 ~> spl-token mint Grg9sGgXYF6ej36AxP75Lm7P2UG3S4peEUTGQBom4Uoa 100000
 Minting 100000 tokens
   Token: Grg9sGgXYF6ej36AxP75Lm7P2UG3S4peEUTGQBom4Uoa
@@ -51,7 +51,10 @@ Signature: 2fFYZ6G3njH7pFF75LbLgFcJ4Uff3MbijsfiNb3F3ZuYcQnTaSzWV5WF3Fhcjb44nGEq9
 
 ---
 
-Now let's create a new program using anchor init.
+## Initializing anchor project for the POC
+
+Creating a new example pda account:
+
 ```rust
 #[account]
 pub struct CustomPda {
@@ -59,7 +62,6 @@ pub struct CustomPda {
     y: u64
 }
 ```
-
 
 
 
