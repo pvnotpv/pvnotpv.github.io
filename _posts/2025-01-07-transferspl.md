@@ -1,15 +1,15 @@
 ---
-title: Solana - Transfering SPL-tokens from PDA accounts
+title: Solana - Transferring SPL-tokens from PDA accounts
 date: 2025-01-07
 categories: [solana]
 tags: [rust, anchorlang, solana]     
-description: Creating an associated token account for a PDA and transferring spl tokens out of it.
+description: Creating an associated token account for a PDA and transferring SPL tokens out of it.
 pin: true
 ---
 
 ---
 
-So I've been kinda trying to figure this out for a few days now since there aren't any direct guides out there on how do to do this, online. If you just want the final code it's at the end of this post.
+So I've been kind of trying to figure this out for a few days now since there aren't any direct guides out there on how to do this online. If you just want the final code, it's at the end of this post.
 
 ---
 
