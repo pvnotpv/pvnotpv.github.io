@@ -123,9 +123,9 @@ pub struct TransferSpl<'info> {
 - We'll first call this function to get the Associated Token Account for the PDA and transfer tokens to it.
 
 ```javascript
-const user = new anchor.web3.PublicKey("6i6Hf1PdcDk4Yt5dbwk4yL1qdspffZSDwW4wK5n3tezC");
+const user = new anchor.web3.PublicKey("6i6Hf1PdcDk4Yt5dbwk4yL1qdspffZSDwW4wK5n3tezC"); // recipient wallet
 const mintAccount = new anchor.web3.PublicKey("12a1jHHLKTNjiHgPu1zeZs9Gvn1dvuHXGUzayGaRKjYJ")
-const toAcc = new anchor.web3.PublicKey("GEKodQzJAewUBJSS1H4jQZL7a1xB4d3yLMqzZw5faaKM")
+const toAcc = new anchor.web3.PublicKey("GEKodQzJAewUBJSS1H4jQZL7a1xB4d3yLMqzZw5faaKM") // recipient ata
 
 const initVault = await program.methods.initTransfer()
   .accounts({
