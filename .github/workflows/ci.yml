@@ -35,8 +35,21 @@ jobs:
       matrix:
         ruby: ["3.3"]
     steps:
+    
       - name: Checkout
         uses: actions/checkout@v4
+
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
      
       - name: Setup Pages
         id: pages
