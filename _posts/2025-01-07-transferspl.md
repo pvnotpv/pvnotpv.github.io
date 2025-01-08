@@ -11,6 +11,8 @@ pin: true
 
 So I've been kind of trying to figure this out for a few days now since there aren't any direct guides out there on how to do this online. If you just want the final code, it's at the end of this post.
 
+I'll be using ATA or Associated Token Account interchangeably in this post.
+
 ---
 
 Here's a quick brief on what we're going to do: 
