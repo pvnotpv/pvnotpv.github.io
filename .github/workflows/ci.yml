@@ -58,6 +58,12 @@ jobs:
       - name: Test Site
         run: bash tools/test.sh
 
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          name: 'github-pages'
+          path: 'dist'
+
 
   deploy:
     needs: build
