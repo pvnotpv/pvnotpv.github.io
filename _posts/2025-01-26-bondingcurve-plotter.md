@@ -41,7 +41,7 @@ tests.py accepts two arguments , one to let know which of the tokens we're buyin
 So now I'm going to create a liquidity pool with 50000 of token x and 50000 of tokens y, and price range 0.5 to 7.
 
 In the tests.py file change this to:
-```
+```python
 curve = curve.BondingCurve(50000, 50000, 1, 7, 0.5)
 ```
 
@@ -67,7 +67,7 @@ The tests.py will save the current state of graph to state.json file which we wi
 
 Now let's try out different scenarios:
 
-```
+```python
 curve = curve.BondingCurve(50000, 50000, 1, 1.1, 0.9)
 ```
 
@@ -85,7 +85,7 @@ Graph after doing the same swap:
 
 Another scenario: Let's try to get the current price out of one of the price regions. Meaning one of the real reserves is going to be empty.
 
-```
+```python
 curve = curve.BondingCurve(5000, 5000, 1, 10, 0.09)
 ```
 
@@ -109,7 +109,8 @@ The scale factor is used to get a proper scaling of the graph. When the liquidit
 
 Two examples of same graphs but with different scaling factor:
 
-First one with: ``` python3 graph.py 300000```
+First one with: 
+``` python3 graph.py 300000```
 
 ![curve](/images/eg0.png)
 
