@@ -23,7 +23,7 @@ As we can see that we're going to concentrate our liquidity at a specific price 
 
 ---
 
-I've created a script that we'll be using here:
+I've created a script that we'll be using here, which does all the mathematical part:
 
 <https://github.com/pvnotpv/bonding-curve-plotter>
 
