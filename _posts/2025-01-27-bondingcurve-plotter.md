@@ -13,4 +13,4 @@ Figuring out how concentrated liquidity works under the hood is kind of hard, de
 > 
 > If you're completely new to this; I'm not really sure how much you'll understand this, since I'm going deeper into the concept of concentrated liquidity. Still I'll give a brief overview on how the constant product formula works.
 
-Ohkay so where to start? , Memecoins! yes; Ever wondered exactly "what" those are? Or what exactly a "memecoin" is? 
+Ohkay so where to start? , Memecoins! yes; Ever wondered exactly "what" those are? Or what a "memecoin" is? It's nothing but 
