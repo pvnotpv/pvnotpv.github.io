@@ -15,3 +15,24 @@ Now why is there a need for concentrated liquidity? , The issue with the constan
 What we want is that our provided liquidity to be concentrated only on a particular price region... this is where the concept of concentrated liquidity comes into play.
 We want our liquidity to be concentrated between two price ranges; say upper price be 2 oranges per apple and lower price be 0.5 oranges per apple.
 
+From the uniswapv3 whitepaper:
+
+![graph](/images/concen.png)
+
+As we can see that we're going to concentrate our liquidity at a specific price range and make sure that most of the provided liquidity is being in use. This makes it more capital efficient and reduces the price impact.
+
+---
+
+I've created a script that we'll be using here:
+
+<https://github.com/pvnotpv/bonding-curve-plotter>
+
+tests.py accepts two arguments , one to let know which of the tokens we're buying/selling and the amount we're going to do the trade for.
+
+So now I'm going to create a liquidity pool with 50000 of token x and 50000 of tokens y, and price range 0.5 to 7.
+
+In the tests.py file change this to:
+```
+curve = curve.BondingCurve(50000, 50000, 1, 7, 0.5)
+```
+
