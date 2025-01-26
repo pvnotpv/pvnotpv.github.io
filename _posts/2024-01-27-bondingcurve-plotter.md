@@ -1,6 +1,6 @@
 ---
 title: Plotting Bonding Curves programmatically.
-date: 2024-01-27
+date: 2025-01-27
 categories: [bondingcurves]
 tags: [uniswap, amms]
 description: Mathematical implementation of the UniswapV3 concentrated liquidity AMM.
