@@ -30,6 +30,7 @@ I've created a script that we'll be using here, which does all the mathematical 
 tests.py accepts two arguments , one to let know which of the tokens we're buying/selling and the amount we're going to do the trade for.
 
 0 - buy token y for x
+
 1 - buy token x for y
 
 So now I'm going to create a liquidity pool with 50000 of token x and 50000 of tokens y, and price range 0.5 to 7.
@@ -51,3 +52,8 @@ Output:
 
 ![out](/images/eqs.png)
 
+---
+
+The tests.py will save the current state of graph to state.json file which we will use to plot the graph.
+
+![curve](/images/curve1.png)
