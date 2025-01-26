@@ -7,6 +7,11 @@ description: Mathematical implementation of the UniswapV3 concentrated liquidity
 pin: true
 ---
 
+This is more like a documentation for the tool I've built to visualize concentrated liquidity by plotting graphs, where I'll be going over different scenarios of the bonding curve and plotting the graph using the script below:
+<https://github.com/pvnotpv/bonding-curve-plotter>
+
+---
+
 Figuring out how concentrated liquidity works under the hood is kind of hard, definitely not easy for people coming into this field with not much of maths nor economics background... The so called magic formulas of uniswapV3 can visualized in lot of ways.
 
 > The sole reason why I'm writing this post is for people who wanna get a high level overview on how concentrated liquidity works. I don't think there's no better way to visualize CLMMs than by plotting graphs...
@@ -94,4 +99,25 @@ Graph:
 
 ![curve](/images/curve3.png)
 
+---
+
+You can try out different scenarios by playing with the curve values!
+
+### Scale factor
+
+The scale factor is used to get a proper scaling of the graph. When the liquidity is high make sure to give a high value of scale factor like say 300000.
+
+Two examples of same graphs but with different scaling factor:
+
+First one with: ``` python3 graph.py 300000```
+
+![curve](/images/eg0.png)
+
+Same exact graph but with a different scale: ``` python3 graph.py 300000```
+
+![curve](/images/eg1.png)
+
+So if you're parabola is missing from the graph, just increase the scaling factor... or just adjust it to get the perfect one!
+
+---
 
