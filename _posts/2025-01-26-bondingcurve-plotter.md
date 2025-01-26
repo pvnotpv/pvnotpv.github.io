@@ -45,7 +45,7 @@ In the tests.py file change this to:
 curve = curve.BondingCurve(50000, 50000, 1, 7, 0.5)
 ```
 
-From the uniswap whitepaper real token reserves is the amount which are avilable at the moment for trade. If we substitute in the formulas, we won't be getting exactly 50k liquidity here but something close to it, If the price range was between 0.9 and 1.1 , we would get the most of our given tokens for trade.
+From the uniswap whitepaper real token reserves is the amount which are avilable at the moment for trade. If we substitute in the formulas, we won't be getting exactly 50k liquidity here but something close to it, If the price range is between 0.9 and 1.1 , we would get the most of our given tokens for trade.
 
 ![out](/images/eqs0.png)
 
