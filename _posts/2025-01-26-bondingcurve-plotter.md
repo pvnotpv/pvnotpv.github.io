@@ -57,3 +57,41 @@ Output:
 The tests.py will save the current state of graph to state.json file which we will use to plot the graph.
 
 ![curve](/images/curve1.png)
+
+---
+
+Now let's try out different scenarios:
+
+```
+curve = curve.BondingCurve(50000, 50000, 1, 1.1, 0.9)
+```
+
+This is one of the most capital efficient price ranges since it's close to the current price.
+
+![curve](/images/eqs1.png)
+
+As we can see that we are getting almost most of the liquidity we've provided and if we do swaps now , price impact would be a lot less.
+
+Graph after doing the same swap:
+
+![out](/images/curve2.png)
+
+---
+
+Another scenario: Let's try to get the current price out of one of the price regions. Meaning one of the real reserves is going to be empty.
+
+```
+curve = curve.BondingCurve(5000, 5000, 1, 10, 0.09)
+```
+
+Output:
+
+![curve](/images/eqs3.png)
+
+As we can see that the x reserves has been completely drained and price has left the upper range!
+
+Graph:
+
+![curve](/images/curve3.png)
+
+
