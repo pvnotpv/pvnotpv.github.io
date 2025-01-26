@@ -41,8 +41,13 @@ curve = curve.BondingCurve(50000, 50000, 1, 7, 0.5)
 
 From the uniswap whitepaper real token reserves is the amount which are avilable at the moment for trade. If we substitute in the formulas, we won't be getting exactly 50k liquidity here but something close to it, If the price range was between 0.9 and 1.1 , we would get the most of our given tokens for trade.
 
+![out](/images/eqs0.png)
+
+Here we're not getting the full amount of token y we've provided due to the price ranges... Experiment by providing different values and price ranges in the script.
+
 Running ```python3 tests.py 1 1522``` , meaning we are going to sell 1522 of token y for x.
 
 Output:
 
 ![out](/images/eqs.png)
+
