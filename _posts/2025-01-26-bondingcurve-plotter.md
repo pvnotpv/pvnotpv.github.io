@@ -29,6 +29,9 @@ I've created a script that we'll be using here:
 
 tests.py accepts two arguments , one to let know which of the tokens we're buying/selling and the amount we're going to do the trade for.
 
+0 - buy token y for x
+1 - buy token x for y
+
 So now I'm going to create a liquidity pool with 50000 of token x and 50000 of tokens y, and price range 0.5 to 7.
 
 In the tests.py file change this to:
@@ -36,3 +39,10 @@ In the tests.py file change this to:
 curve = curve.BondingCurve(50000, 50000, 1, 7, 0.5)
 ```
 
+From the uniswap whitepaper real token reserves is the amount which are avilable at the moment for trade. If we substitute in the formulas, we won't be getting exactly 50k liquidity here but something close to it, If the price range was between 0.9 and 1.1 , we would get the most of our given tokens for trade.
+
+Running ```python3 tests.py 1 1522``` , meaning we are going to sell 1522 of token y for x.
+
+Output:
+
+![out](/images/eqs.png)
