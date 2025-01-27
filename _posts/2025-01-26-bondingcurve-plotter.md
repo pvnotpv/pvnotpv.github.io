@@ -110,7 +110,7 @@ The scale factor is used to get a proper scaling of the graph. When the liquidit
 Two examples of same graphs but with different scaling factor:
 
 First one with: 
-``` python3 graph.py 300000```
+``` python3 graph.py 30000```
 
 ![curve](/images/eg0.png)
 
