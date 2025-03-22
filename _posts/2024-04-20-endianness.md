@@ -1,5 +1,5 @@
 ---
-title: Solidity - Endianess and Bytes explained
+title: Solidity - Deep dive into Endianness and Bytes 
 date: 2024-04-16 
 categories: [solidity]
 tags: [solidity]     
@@ -7,10 +7,6 @@ description: In depth-overview
 ---
 
 Continuation of - <https://pvnotpv.github.io/posts/solslayout/>
-
-Sources: 
-- <https://www.freecodecamp.org/news/what-is-endianness-big-endian-vs-little-endian/>
-- <https://web.archive.org/web/20210404165837/https://jeancvllr.medium.com/solidity-tutorial-all-about-bytes-9d88fdb22676>
 
 Different languages read their text in different orders. English reads from left to right, for example, while Arabic is read right to left.
 If my computer reads bytes from left to right, and your computer reads from right to left, we're going to have issues when we need to communicate.
