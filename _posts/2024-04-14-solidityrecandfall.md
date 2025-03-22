@@ -3,6 +3,7 @@ title: Solidity - Receive and Fallback functions
 date: 2024-04-16 
 categories: [solidity]
 tags: [solidity]     
+published: false
 description: Low level overview of these functions.
 ---
  
