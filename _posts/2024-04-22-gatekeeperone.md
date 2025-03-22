@@ -3,7 +3,7 @@ title: Ethernaut - GakeKeeperOne walkthrough (Finding gas using the debug method
 date: 2024-04-22
 categories: [solidity]
 tags: [solidity,ethernaut]     
-description: Solution of this brainfuck level
+description: Solution to this brainfuck level
 ---
 
 - This level has taught me enough pain and suffering, took almost half a day to solve and my eyes were completely dead.
@@ -42,10 +42,6 @@ contract GatekeeperOne {
     }
 }
 ```
-
-Figuring out the gas thingy was the hardest part, as someone with not so much experience in this field it was really challenging but figured it out, at the same time I've learned lots and lots of stuffs from this level.
-
-So first I started by learning debugging using remix ide, with some simple contracts I've gained experience with it and started with the above contract.
 
 ```
 modifier gateOne() {
