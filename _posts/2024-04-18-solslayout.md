@@ -4,7 +4,7 @@ date: 2024-04-18
 categories: [solidity]
 tags: [solidity,solidityslots,soliditylayout]     
 description: In depth explanation of solidity storage and layout starting from the basics of hexadecimal.
-pin: true
+published: false
 ---
 
 Sources I've used to learn this topic.
