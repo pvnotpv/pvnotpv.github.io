@@ -52,7 +52,6 @@ function callTota(Contract toCallContract) public returns (bool) {
         return success;
 }
 ```
-
 This nthada() function does not exists so 'console.logBytes(msg.data);' will be executed.
 
 -  If neither a receive Ether nor a payable fallback function is present, the contract cannot receive Ether through a transaction that does not represent a payable function call and throws an exception.
