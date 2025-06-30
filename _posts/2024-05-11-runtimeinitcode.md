@@ -1,9 +1,9 @@
 ---
-title: EVM - Init and Runtime code
+title: EVM - Init and Runtime code, going deep inside.
 date: 2024-04-14
 categories: [solidity,evm]
 tags: [evm,solidity]    
-description: In-depth explanation.
+description: Writing super small contracts in EVM assembly.
 pin: true
 ---
 
