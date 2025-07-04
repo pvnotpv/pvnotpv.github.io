@@ -20,7 +20,7 @@ Fully deep in DeFi & Web3 sec, cooking in Solidity + Rust rn.
 
 <https://data.typeracer.com/pit/profile?user=randomuser0007> (...)
 
-<https://hackerone.com/pv2077> (Was in the web2 space for quite some time but went into web3 sec way too soon I guess...? , Either way still has that patient badge in my profile for literally waiting for almost a year to get a bug triaged.)
+<https://hackerone.com/pv2077> (Was in the web2 space for quite some time but went into web3 sec way too soon I guess...? , Either way still has that patient badge in my profile for literally waiting for almost a year to get a bug triaged lol.)
 
 <https://ethereum.stackexchange.com/users/125517/> (Just doing my part)
 
