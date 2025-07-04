@@ -16,7 +16,7 @@ Fully deep in DeFi & Web3 sec, cooking in Solidity + Rust rn.
 
 ##### I'm really into touch typing btw (QWERTY)
 
-<https://monkeytype.com/profile/pvpvpv> (Broke the 164 wpm on 15 sec almost 2 years ago , still can't beat my previous record)
+<https://monkeytype.com/profile/pvpvpv> (Broke the 164 wpm on 15 sec almost 2 years ago , for some reason I still can't beat it.)
 
 <https://data.typeracer.com/pit/profile?user=randomuser0007> (...)
 
