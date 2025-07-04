@@ -15,7 +15,7 @@ Fully deep in DeFi & Web3 sec, cooking in Solidity + Rust rn.
 
 <https://app.hackthebox.com/profile/305684> (Was really into this during the lockdown season but not much after that)
 
-###### I'm really into touch typing btw (QWERTY)
+##### I'm really into touch typing btw (QWERTY)
 
 <https://monkeytype.com/profile/pvpvpv> (Broke the 164 wpm on 15 sec almost 2 years ago , still can't beat my previous record)
 
