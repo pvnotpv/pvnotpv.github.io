@@ -10,7 +10,7 @@ Fully deep in DeFi & Web3 sec, cooking in Solidity + Rust rn.
 
 ---
 
-- <https://audits.sherlock.xyz/watson/pv> (ain't much but it’s honest work)
+- <https://audits.sherlock.xyz/watson/pv> (ain't much but it’s honest work, still the proudest $20 I've ever made in my life.)
 
 - <https://app.hackthebox.com/profile/305684> (Was really into this during the lockdown season but not much after that)
 
