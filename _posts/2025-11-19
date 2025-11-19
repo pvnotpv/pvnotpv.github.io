@@ -1,0 +1,27 @@
+---
+title: Zero Knowledge Proofs - Polynomial to QAP on paper
+date: 2025-11-19k
+categories: [web3]
+tags: [dex, pumpfun]    
+pin: true
+description: From a polynomial to R1CS to a QAP without skipping a single step! 
+---
+
+So I've really been into this for quite some time now; I mean, the rareskills.io book on zk proofs is literally just insane, and honestly, I'm kind of surprised that I've made it this far. Yeah, so the primary reason why I'm writing this post is because I didn't see any complete example of converting an example polynomial to QAP without skipping any single steps anywhere online. I mean, obviously, yeah, that'd be something you'd be doing after learning as an exercise, perhaps? Either way, yeah, here is mine where I take a random polynomial and do the full process on paper.
+
+There's this chapter from the book https://rareskills.io/post/r1cs-to-qap where they take a polynomial and do the full process, so I'd be doing something like that but completely on paper, drawing every single matrix, including the column ones, and secondly and most importantly, no finite fields. I mean, it isn't really going to make that much of a difference, but either way, it'd be much easier to visualize for people who aren't so math friendly.
+
+Here are the different steps we'll be doing when converting a polynomial to QAP:
+
+1. First, yeah, take a polynomial.
+2. Convert into its different constraints.
+3. Get the L, R, and O vectors.
+4. Checking if it's correct.
+5. Taking an example witness vector.
+6. Convert each column of the L, R, and O vectors to polynomials using Lagrange's interpolation.
+7. Multiplying each column with the corresponding elements from the witness vector.
+8. Getting the H(x) and T(x) polys.
+9. Using the QAP formula and getting our final result.
+10. Evaluate the polynomials using a random value.
+
+If we get the LHS and RHS equal, then yeah, we've successfully verified it. One more thing is that we can see if we've made any mistakes along the way if the remainder when dividing the numerator with t(x) when computing h(x) is zero or non-zero. If we get a zero remainder, we are indeed correct!
