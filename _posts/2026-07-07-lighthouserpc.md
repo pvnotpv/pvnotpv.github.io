@@ -7,11 +7,11 @@ pin: true
 description: Code level review on the implementation of Phase0 consensus specification
 ---
 
-PS - This is ongoing , I will be updating it time to time before making the full post.
+PS - This is ongoing; I will be updating it from time to time before making the full post.
 
 > It's been almost 3 months since I've been really going low level on geth and lighthouse and currently at the Networking stack of lighthouse. 
 
-> So currently I'm on the phase0 branch which is almost a few years old and the code have obviously changed a lot but the foundation is still the same and no better way to learn than go to the past!
+> So currently I'm on the phase 0 branch, which is almost a few years old, and the code has obviously changed a lot, but the foundation is still the same, and there's no better way to learn than to go to the past!
 
 ```bash
 pv@arch ~/lighthouse ((v2.0.0))> git branch
@@ -20,18 +20,19 @@ pv@arch ~/lighthouse ((v2.0.0))> git branch
 pv@arch ~/lighthouse ((v2.0.0))>
 ```
 
-The thing is that by the time of writing this there is apparently not much articles nor even the eth2 book is not updated of the networking section but I guess that had been the best part about this 
-because I've been head deep on the code and figuring it out how it works under the hood and honestly suprised with the amount of progress I've made!
+The thing is that by the time of writing this, there are apparently not many articles, nor is even the Eth2 book updated on the networking section, but I guess that has been the best part about this. 
 
-Now the networking specifications from ethererum with not much explanations might kinda seem insane at first but it's honestly just really simple
+Because I've been head-deep on the code and figuring out how it works under the hood, and honestly, I'm surprised with the amount of progress I've made!
 
-Yes I'm talking about this: https://ethereum.github.io/consensus-specs/phase0/p2p-interface/
+Now the networking specifications from Ethereum with not much explanation might kind of seem insane at first, but it's honestly just really simple.
 
-So before reading this make sure to have solid understanding of asynchronus rust, rust-libp2p and how gossipub works, because that is literally the whole thing about this codebase and if you have a strong understanding of that , the codebase is going to feel average for real!
+Yes, I'm talking about this: <https://ethereum.github.io/consensus-specs/phase0/p2p-interface/>
 
-Here's the explanation that could get you 100% understanding of the lighthouse phase0 rpc, I won't be going much into gossipsub and discovery , which is for another article.
+So before reading this, make sure to have a solid understanding of asynchronous Rust, Rust-libp2p, and how Gossipub works, because that is literally the whole thing about this codebase, and if you have a strong understanding of that, the codebase is going to feel average for real!
 
-Let's perform a simple ping request and see the exact 
+Here's the explanation that could get you 100% understanding of the lighthouse phase 0 RPC. I won't be going much into gossipsub and discovery, which is for another article.
+
+Let's perform a simple ping request and see the exact process
 
 (This is for the RPC behaviour implementation)
 
@@ -171,7 +172,10 @@ Here we can see that the outbound stream is saved, now for the inbound stream sa
 
 Again we can see that the inbound substream is saved!
 
-(Here i haven't gone much into upgrade_inbound and upgrade_outbound since it's not doing that much for real, just a few lines of code)
+A quick note on upgrade_outbound and upgrade_inbound
+
+> This is where the protocol versioning and ssz encoding negotiation and snappy compression is taken care of.
+
 
 The handler poll function is really simple where first it checks the delays of each items in the inbound and outbound streams and is removed and a timeout is issued.
 
@@ -483,3 +487,44 @@ Now how the processor working is really interesting. From beacon_processor/mod.r
 //! 2. A fixed-length buffer for consensus messages.
 ```
 
+Now here comes the voilia moment!
+
+```
+-        self.send_beacon_processor_work(BeaconWorkEvent::status_message(peer_id, status))
+-            self.beacon_processor_send
+            .try_send(work)
+
+(here the work is sent to the channel)
+```
+
+worker/rpc_methods.rs
+
+```rust
+
+    pub fn process_status(&self, peer_id: PeerId, status: StatusMessage) {
+        match self.check_peer_relevance(&status) {
+            Ok(Some(irrelevant_reason)) => {
+                debug!(self.log, "Handshake Failure"; "peer" => %peer_id, "reason" => irrelevant_reason);
+                self.goodbye_peer(peer_id, GoodbyeReason::IrrelevantNetwork);
+            }
+            Ok(None) => {
+                let info = SyncInfo {
+                    head_slot: status.head_slot,
+                    head_root: status.head_root,
+                    finalized_epoch: status.finalized_epoch,
+                    finalized_root: status.finalized_root,
+                };
+                self.send_sync_message(SyncMessage::AddPeer(peer_id, info));
+            }
+            Err(e) => error!(self.log, "Could not process status message"; "error" => ?e),
+        }
+    }
+
+
+```
+
+Here the response is set!
+
+Mspc is channel where the asynchronus threads communicate with!
+
+So this is how the lighthouse handles the consensus specification 
