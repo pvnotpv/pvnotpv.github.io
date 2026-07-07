@@ -13,7 +13,7 @@ PS - This is ongoing , I will be updating it time to time before making the full
 
 > So currently I'm on the phase0 branch which is almost a few years old and the code have obviously changed a lot but the foundation is still the same and no better way to learn than go to the past!
 
-```rust
+```bash
 pv@arch ~/lighthouse ((v2.0.0))> git branch
 * (HEAD detached at v2.0.0)
   stable
@@ -27,3 +27,8 @@ Now the networking specifications from ethererum with not much explanations migh
 
 Yes I'm talking about this: https://ethereum.github.io/consensus-specs/phase0/p2p-interface/
 
+So before reading this make sure to have solid understanding of asynchronus rust, rust-libp2p and how gossipub works, because that is literally the whole thing about this codebase and if you have a strong understanding of that , the codebase is going to feel average for real!
+
+Here's the explanation that could get you 100% understanding of the lighthouse phase0 rpc, I won't be going much into gossipsub and discovery , which is for another article.
+
+Let's perform a simple ping request and see the exact 
