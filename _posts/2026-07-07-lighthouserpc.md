@@ -307,3 +307,179 @@ It's honestly this simple (Assuming here the peer is dialed)
 
 
 We still haven't talked about the most important part the driving factor , meaning when a request is recieved how is the request being sent?
+
+handler.rs poll() we can see this:
+
+```rust
+    fn poll(
+        &mut self,
+        cx: &mut Context<'_>,
+    ) -> Poll<
+        ProtocolsHandlerEvent<
+            Self::OutboundProtocol,
+            Self::OutboundOpenInfo,
+            Self::OutEvent,
+            Self::Error,
+        >,
+    > {
+        // return any events that need to be reported
+        if !self.events_out.is_empty() {
+            return Poll::Ready(ProtocolsHandlerEvent::Custom(self.events_out.remove(0)));
+        } else {
+            self.events_out.shrink_to_fit();
+        }
+```
+
+
+Where the request is sent out , which is sent out through the inject_event() function:
+
+behaviour/mod.rs , we can see that:
+
+```rust
+impl<TSpec: EthSpec> NetworkBehaviourEventProcess<RPCMessage<TSpec>> for Behaviour<TSpec> {
+    fn inject_event(&mut self, event: RPCMessage<TSpec>) {
+        let peer_id = event.peer_id;
+
+            Ok(RPCReceived::Request(id, request)) => {
+                let peer_request_id = (handler_id, id);
+                match request {
+                    /* Behaviour managed protocols: Ping and Metadata */
+                    InboundRequest::Ping(ping) => {
+                        // inform the peer manager and send the response
+                        self.peer_manager.ping_request(&peer_id, ping.data);
+                        // send a ping response
+                        self.pong(peer_request_id, peer_id);
+                    }
+                    InboundRequest::MetaData(_) => {
+                        // send the requested meta-data
+                        self.send_meta_data_response((handler_id, id), peer_id);
+                    }
+                    InboundRequest::Goodbye(reason) => {
+                        // queue for disconnection without a goodbye message
+                        debug!(
+                            self.log, "Peer sent Goodbye";
+                            "peer_id" => %peer_id,
+                            "reason" => %reason,
+                            "client" => %self.network_globals.client(&peer_id),
+                        );
+                        // NOTE: We currently do not inform the application that we are
+                        // disconnecting here. The RPC handler will automatically
+                        // disconnect for us.
+                        // The actual disconnection event will be relayed to the application.
+                    }
+                    /* Protocols propagated to the Network */
+                    InboundRequest::Status(msg) => {
+                        // inform the peer manager that we have received a status from a peer
+                        self.peer_manager.peer_statusd(&peer_id);
+                        // propagate the STATUS message upwards
+                        self.propagate_request(peer_request_id, peer_id, Request::Status(msg))
+                    }
+                    InboundRequest::BlocksByRange(req) => self.propagate_request(
+                        peer_request_id,
+                        peer_id,
+                        Request::BlocksByRange(req),
+                    ),
+                    InboundRequest::BlocksByRoot(req) => {
+                        self.propagate_request(peer_request_id, peer_id, Request::BlocksByRoot(req))
+                    }
+                }
+            }
+
+```
+For ping, metadata and goodbye the request is handled there itself!
+
+Since status, blockbyrange and blocksbyrange requires data from the beacon chain they're handled differently... let's see how that goes...
+
+```rust
+    InboundRequest::Status(msg) => {
+                        // inform the peer manager that we have received a status from a peer
+                        self.peer_manager.peer_statusd(&peer_id);
+                        // propagate the STATUS message upwards
+                        self.propagate_request(peer_request_id, peer_id, Request::Status(msg))
+                    }
+```
+
+Here again remember that behaviour/mod.rs is anotha behaviour!
+
+```rust
+    fn propagate_request(&mut self, id: PeerRequestId, peer_id: PeerId, request: Request) {
+        self.add_event(BehaviourEvent::RequestReceived {
+            peer_id,
+            id,
+            request,
+        });
+    }
+```
+
+Now it's sends out its own event.
+
+Looking at network/service.rs
+
+```rust
+ BehaviourEvent::RequestReceived{peer_id, id, request} => {
+                                let _ = service
+                                    .router_send
+                                    .send(RouterMessage::RPCRequestReceived{peer_id, id, request})
+                                    .map_err(|_| {
+                                        debug!(service.log, "Failed to send RPC to router");
+                                    });
+                            }
+```
+
+The message is passed through the router.
+
+router/mod.rs
+
+```rust
+    fn handle_message(&mut self, message: RouterMessage<T::EthSpec>) {
+        match message {
+            // we have initiated a connection to a peer or the peer manager has requested a
+            // re-status
+            RouterMessage::PeerDialed(peer_id) | RouterMessage::StatusPeer(peer_id) => {
+                self.processor.send_status(peer_id);
+            }
+            // A peer has disconnected
+            RouterMessage::PeerDisconnected(peer_id) => {
+                self.processor.on_disconnect(peer_id);
+            }
+            RouterMessage::RPCRequestReceived {
+                peer_id,
+                id,
+                request,
+            } => {
+                self.handle_rpc_request(peer_id, id, request);
+            }
+```
+
+```rust
+   fn handle_rpc_request(&mut self, peer_id: PeerId, id: PeerRequestId, request: Request) {
+        if !self.network_globals.peers.read().is_connected(&peer_id) {
+            debug!(self.log, "Dropping request of disconnected peer"; "peer_id" => %peer_id, "request" => ?request);
+            return;
+        }
+        match request {
+            Request::Status(status_message) => {
+                self.processor
+                    .on_status_request(peer_id, id, status_message)
+            }
+            Request::BlocksByRange(request) => self
+                .processor
+                .on_blocks_by_range_request(peer_id, id, request),
+            Request::BlocksByRoot(request) => self
+                .processor
+                .on_blocks_by_root_request(peer_id, id, request),
+        }
+    }
+```
+
+The request goes through the processor.
+
+Now how the processor working is really interesting. From beacon_processor/mod.rs
+
+```
+//! The purpose of the `BeaconProcessor` is to provide two things:
+//!
+//! 1. Moving long-running, blocking tasks off the main `tokio` executor.
+//! 2. A fixed-length buffer for consensus messages.
+```
+
