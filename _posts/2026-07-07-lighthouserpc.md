@@ -394,6 +394,8 @@ For ping, metadata and goodbye the request is handled there itself!
 
 Since status, blockbyrange and blocksbyrange requires data from the beacon chain they're handled differently... let's see how that goes...
 
+(Here I won't be going deep into the exact working of the beacon state processor but tracing the execution path.)
+
 ```rust
     InboundRequest::Status(msg) => {
                         // inform the peer manager that we have received a status from a peer
