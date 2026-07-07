@@ -116,3 +116,79 @@ In hander.rs #L881-895 we can see that
         }
 
 ```
+Now looking at the libp2p documentation for protocols handler we can see this
+
+```rust
+///   1. Dialing by initiating a new outbound substream. In order to do so,
+///      [`ProtocolsHandler::poll()`] must return an [`ProtocolsHandlerEvent::OutboundSubstreamRequest`],
+///      providing an instance of [`libp2p_core::upgrade::OutboundUpgrade`] that is used to negotiate the
+///      protocol(s). Upon success, [`ProtocolsHandler::inject_fully_negotiated_outbound`]
+///      is called with the final output of the upgrade.
+///
+```
+
+First the libp2p stream is given to the upgrade_outbound where the protocol negotiations happens, if the particlar stage is passed the stream is handled to the handler!
+
+handler.rs #373 
+
+```rust
+    fn inject_fully_negotiated_outbound(
+
+  };
+            if self
+                .outbound_substreams
+                .insert(
+                    self.current_outbound_substream_id,
+                    OutboundInfo {
+                        state: awaiting_stream,
+                        delay_key,
+                        proto,
+                        remaining_chunks: expected_responses,
+                        req_id: id,
+                    },
+                )
+                .is_some()
+            {
+
+```
+
+Here we can see that the outbound stream is saved, now for the inbound stream same the upgrade_inbound is where protocol negotiations happen if that stage is pssed then 
+    fn inject_fully_negotiated_inbound( is called!
+
+```rust
+            self.inbound_substreams.insert(
+                self.current_inbound_substream_id,
+                InboundInfo {
+                    state: awaiting_stream,
+                    pending_items: vec![],
+                    delay_key: Some(delay_key),
+                    protocol: req.protocol(),
+                    remaining_chunks: expected_responses,
+                },
+
+```
+
+Again we can see that the inbound substream is saved!
+
+(Here i haven't gone much into upgrade_inbound and upgrade_outbound since it's not doing that much for real, just a few lines of code)
+
+The handler poll function is really simple where first it checks the delays of each items in the inbound and outbound streams and is removed and a timeout is issued.
+
+Now here comes the interesting part how is the response given?
+
+handler.rs #L606 - 
+
+```rust
+    let mut substreams_to_remove = Vec::new(); // Closed substreams that need to be removed
+        for (id, info) in self.inbound_substreams.iter_mut() {
+            loop {
+                match std::mem::replace(&mut info.state, InboundState::Poisoned) {
+                    InboundState::Idle(substream) if !deactivated => {
+                        if !info.pending_items.is_empty() {
+                            let to_send = std::mem::take(&mut info.pending_items);
+                            let fut = process_inbound_substream(
+                                substream,
+                                info.remaining_chunks,
+                                to_send,
+                            )
+```
