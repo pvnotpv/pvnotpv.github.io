@@ -156,6 +156,7 @@ Here we can see that the outbound stream is saved, now for the inbound stream sa
     fn inject_fully_negotiated_inbound( is called!
 
 ```rust
+            let awaiting_stream = InboundState::Idle(substream);
             self.inbound_substreams.insert(
                 self.current_inbound_substream_id,
                 InboundInfo {
@@ -192,3 +193,117 @@ handler.rs #L606 -
                                 to_send,
                             )
 ```
+
+So currently each request has an expected response which should be satisfied
+
+```
+    pub fn expected_responses(&self) -> u64 {
+        match self {
+            InboundRequest::Status(_) => 1,
+            InboundRequest::Goodbye(_) => 0,
+            InboundRequest::BlocksByRange(req) => req.count,
+            InboundRequest::BlocksByRoot(req) => req.block_roots.len() as u64,
+            InboundRequest::Ping(_) => 1,
+            InboundRequest::MetaData(_) => 1,
+        }
+    }
+
+```
+
+So currently for our ping it's one!
+
+Looking at process_inbound_stream
+
+```rust
+async fn process_inbound_substream<TSpec: EthSpec>(
+    mut substream: InboundSubstream<TSpec>,
+    mut remaining_chunks: u64,
+    pending_items: Vec<RPCCodedResponse<TSpec>>,
+) -> InboundProcessingOutput<TSpec> {
+    let mut errors = Vec::new();
+    let mut substream_closed = false;
+
+    for item in pending_items {
+        if !substream_closed {
+            if matches!(item, RPCCodedResponse::StreamTermination(_)) {
+                substream.close().await.unwrap_or_else(|e| errors.push(e));
+                substream_closed = true;
+            } else {
+                remaining_chunks = remaining_chunks.saturating_sub(1);
+                // chunks that are not stream terminations get sent, and the stream is closed if
+                // the response is an error
+                let is_error = matches!(item, RPCCodedResponse::Error(..));
+
+                substream
+                    .send(item)
+                    .await
+                    .unwrap_or_else(|e| errors.push(e));
+
+                if remaining_chunks == 0 || is_error {
+                    substream.close().await.unwrap_or_else(|e| errors.push(e));
+                    substream_closed = true;
+                }
+            }
+```
+
+See the lines
+
+```rust
+substream
+                    .send(item)
+                    .await
+                    .unwrap_or_else(|e| errors.push(e));
+```
+
+It's literally just sending the response through the substream, but wait we still haven't provided a response, so how do we fill up the pending_items?
+
+This is exactly where the send_response comes down 
+
+handler.rs #L280
+
+```rust
+    fn send_response(&mut self, inbound_id: SubstreamId, response: RPCCodedResponse<TSpec>) {
+
+        inbound_info.pending_items.push(response);
+
+```
+So this is exactly where a response is pushed down the stream.
+
+
+Now going back to the outbound side
+
+handler.rs #746
+
+```rust
+                OutboundSubstreamState::RequestPendingResponse {
+                    mut substream,
+                    request,
+                } => match substream.poll_next_unpin(cx) {
+                    Poll::Ready(Some(Ok(response))) => {
+                        if request.expected_responses() > 1 && !response.close_after() {
+                            let substream_entry = entry.get_mut();
+                            let delay_key = &substream_entry.delay_key;
+                            // chunks left after this one
+                            let remaining_chunks = substream_entry
+                                .remaining_chunks
+                                .map(|count| count.saturating_sub(1))
+                                .unwrap_or_else(|| 0);
+                            if remaining_chunks == 0 {
+                                // this is the last expected message, close the stream as all expected chunks have been received
+
+```
+
+The substream is read, checked for expected response!
+
+
+It's honestly this simple (Assuming here the peer is dialed) 
+
+1. The request is send to the dial queue
+2. The poll picks it up
+3. Protocol negotiations happens.
+4. The substreams are saved awaiting responses.
+5. A response is send through the inbound stream
+6. The outbound stream gets it
+
+
+We still haven't talked about the most important part the driving factor , meaning when a request is recieved how is the request being sent?
