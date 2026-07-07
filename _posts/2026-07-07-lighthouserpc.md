@@ -32,3 +32,87 @@ So before reading this make sure to have solid understanding of asynchronus rust
 Here's the explanation that could get you 100% understanding of the lighthouse phase0 rpc, I won't be going much into gossipsub and discovery , which is for another article.
 
 Let's perform a simple ping request and see the exact 
+
+(This is for the RPC behaviour implementation)
+
+rpc/mods.rs #154-165
+
+```rust
+    pub fn send_request(
+        &mut self,
+        peer_id: PeerId,
+        request_id: RequestId,
+        event: OutboundRequest<TSpec>,
+    ) {
+        self.events.push(NetworkBehaviourAction::NotifyHandler {
+            peer_id,
+            handler: NotifyHandler::Any,
+            event: RPCSend::Request(request_id, event),
+        });
+    }
+
+
+```
+
+Here the OutBoundRequest being the ping request with the sequence number.
+
+```rust
+pub enum OutboundRequest<TSpec: EthSpec> {
+    Status(StatusMessage),
+    Goodbye(GoodbyeReason),
+    BlocksByRange(BlocksByRangeRequest),
+    BlocksByRoot(BlocksByRootRequest),
+    Ping(Ping),
+    MetaData(PhantomData<TSpec>),
+}
+```
+
+Here we're going to make an outbound request
+
+In rpc/handler.rs#L492-435
+
+```rust
+
+    fn inject_event(&mut self, rpc_event: Self::InEvent) {
+        match rpc_event {
+            RPCSend::Request(id, req) => self.send_request(id, req),
+            RPCSend::Response(inbound_id, response) => self.send_response(inbound_id, response),
+            RPCSend::Shutdown(reason) => self.shutdown(Some(reason)),
+        }
+    }
+```
+
+This is exactly where the request we made from the behaviour reaches the RPC handler.
+
+```rust
+    fn send_request(&mut self, id: RequestId, req: OutboundRequest<TSpec>) {
+
+        match self.state {
+            HandlerState::Active => {
+                self.dial_queue.push((id, req));
+            }
+```
+
+The request will be added to a dial queue which the handler will pick up on polling.
+
+In hander.rs #L881-895 we can see that
+
+```rust
+        // establish outbound substreams
+        if !self.dial_queue.is_empty() && self.dial_negotiated < self.max_dial_negotiated {
+            self.dial_negotiated += 1;
+            let (id, req) = self.dial_queue.remove(0);
+            self.dial_queue.shrink_to_fit();
+            return Poll::Ready(ProtocolsHandlerEvent::OutboundSubstreamRequest {
+                protocol: SubstreamProtocol::new(
+                    OutboundRequestContainer {
+                        req: req.clone(),
+                        fork_context: self.fork_context.clone(),
+                    },
+                    (),
+                )
+                .map_info(|()| (id, req)),
+            });
+        }
+
+```
