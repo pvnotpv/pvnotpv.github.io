@@ -41,6 +41,8 @@ pub enum InboundRequest<TSpec: EthSpec> {
 }
 ```
 
+---
+
 ## LibP2P
 
 First let's start with Libp2p itself, First the diagram then the explanation! 
@@ -94,7 +96,7 @@ Starting from a request:
     }
 ```
 
-This event will be picked up the libp2p handler.
+This event will be picked up by the libp2p handler.
 
 ```rust
     fn inject_event(&mut self, rpc_event: Self::InEvent) {
@@ -139,7 +141,7 @@ The request will be put into a dial queue:
     }
 ```
 
-Now just like how libp2p works , sending a ProtocolsHandlerEvent::OutboundSubstreamRequest request will initiate a connection.
+Now just like how libp2p works, sending a ProtocolsHandlerEvent::OutboundSubstreamRequest request will initiate a connection.
 
 We can see these lines in rpc/handler.rs L881-L895 in the poll function:
 
@@ -367,7 +369,7 @@ async fn process_inbound_substream<TSpec: EthSpec>(
 }
 ```
 
-These lines is where the magic happens:
+These lines are where the magic happens:
 
 ```rust
                 substream
@@ -376,9 +378,10 @@ These lines is where the magic happens:
                     .unwrap_or_else(|e| errors.push(e));
 ```
 
-It's literally sending response to the substream!
+It's literally sending a response to the substream!
 
 Now let's take a look at the sender side that is expecting the response.
+
 
 hander.rs#L746
 
@@ -400,7 +403,7 @@ hander.rs#L746
 
 ```
 
-Now if the expected responses are matched then:
+Now if the expected responses are matched, then:
 
 ```rust
 
@@ -417,15 +420,17 @@ Now if the expected responses are matched then:
 
 ```
 
-The lifecyle has been completed now (at the libp2p level) , where the sender has gotten a response now.
+The lifecycle has been completed now (at the libp2p level), where the sender has gotten a response now.
+
+---
 
 ## Behaviour
 
 ![diagram2](/images/6.png)
 
-Behaviour is the main, core behaviour that provides the high level abstraction for all other behaviours. 
+Behaviour is the main, core behaviour that provides the high-level abstraction for all other behaviours. 
 
-Let's take a look at the Behaviours' processing of the rpc events.
+Let's take a look at the Behaviours' processing of the RPC events.
 
 ```rust
 // RPC
@@ -464,15 +469,17 @@ From L-899
 
 We can see that for ping requests the request is directly handled from the behaviour itself.
 
-Where as for the other requests the request needs stuff fromt the beacon chain, so it's sent further high up the stack,
+Whereas for the other requests, the request needs stuff from the beacon chain, so it's sent further up the stack.
 
-Now guess it's time for us to go even higher level where we'd see how this works.
+Now guess it's time for us to go to an even higher level where we'd see how this works.
+
+---
 
 ## Service
 
 (eth2_lib2p/src/service.rs)
 
-> I might be a bit vague right here on this part since there is not much going on other than the default libp2p stuffs.
+> I might be a bit vague right here on this part since there is not much going on other than the default libp2p stuff.
 
 
 ![diagram2](/images/7.png)
@@ -481,5 +488,497 @@ Here's the more in-depth view:
 
 ![diagram2](/images/8.png)
 
+The "Service" struct is the final abstraction of the LibP2P layer, where the behaviour, networking and the main LibP2P "swarm" are configured.
 
+- The usual Libp2p network configurations, and then we importantly have the swarm being built.
+
+```rust
+                SwarmBuilder::new(transport, behaviour, local_peer_id)
+                    .notify_handler_buffer_size(std::num::NonZeroUsize::new(7).expect("Not zero"))
+                    .connection_event_buffer_size(64)
+                    .connection_limits(limits)
+                    .executor(Box::new(Executor(executor)))
+                    .build(),
+                bandwidth,
+            )
+```
+
+Nothing is too specific other than the usual libp2p configurations.
+
+Again, here are the two important methods being send_request and send_response:
+
+```rust
+    /// Sends a request to a peer, with a given Id.
+    pub fn send_request(&mut self, peer_id: PeerId, request_id: RequestId, request: Request) {
+        self.swarm
+            .behaviour_mut()
+            .send_request(peer_id, request_id, request);
+    }
+        /// Sends a response to a peer's request.
+    pub fn send_response(&mut self, peer_id: PeerId, id: PeerRequestId, response: Response<TSpec>) {
+        self.swarm
+            .behaviour_mut()
+            .send_successful_response(peer_id, id, response);
+    }
+```
+
+Alright, now time to hit the most important function, which is the polling.
+
+```rust
+    pub async fn next_event(&mut self) -> Libp2pEvent<TSpec> {
+        loop {
+            match self.swarm.select_next_some().await {
+                SwarmEvent::Behaviour(behaviour) => {
+                    // Handle banning here
+                    match &behaviour {
+                        BehaviourEvent::PeerBanned(peer_id) => {
+                            self.swarm.ban_peer_id(*peer_id);
+                        }
+                        BehaviourEvent::PeerUnbanned(peer_id) => {
+                            self.swarm.unban_peer_id(*peer_id);
+                        }
+                        _ => {}
+                    }
+                    return Libp2pEvent::Behaviour(behaviour);
+
+```
+
+This is exactly where the swarm sends events outside it. Meaning we're basically at the end of Libp2p.
+
+---
+
+## NetworkService
+
+> Hitting the network/ folder now!
+
+![diagram2](/images/9.png)
+
+The NetworkService is the middleman between the low-level networking and the high-level message processing. 
+
+It drives the whole NetworkStack completely, driving the whole high-level and the low-level layers.
+
+![diagram2](/images/10.png)
+
+```rust
+/// Service that handles communication between internal services and the `eth2_libp2p` network service.
+pub struct NetworkService<T: BeaconChainTypes> {
+    /// A reference to the underlying beacon chain.
+    beacon_chain: Arc<BeaconChain<T>>,
+    /// The underlying libp2p service that drives all the network interactions.
+    libp2p: LibP2PService<T::EthSpec>,
+    /// An attestation and subnet manager service.
+    attestation_service: AttestationService<T>,
+    network_recv: mpsc::UnboundedReceiver<NetworkMessage<T::EthSpec>>,
+    router_send: mpsc::UnboundedSender<RouterMessage<T::EthSpec>>,
+
+    store: Arc<HotColdDB<T::EthSpec, T::HotStore, T::ColdStore>>,
+}
+```
+
+The router_send is the channel where the NetworkService sends messages to the Router.
+
+
+```rust
+        let router_send = Router::spawn(
+            beacon_chain.clone(),
+            network_globals.clone(),
+            network_send.clone(),
+            executor.clone(),
+            network_log.clone(),
+        )?;
+```
+
+The router_send is:
+
+```rust
+        let (handler_send, handler_recv) = mpsc::unbounded_channel();
+```
+
+The network channel is where the NetworkService receives responses from the higher stack.
+
+```rust
+impl<T: BeaconChainTypes> NetworkService<T> {
+    #[allow(clippy::type_complexity)]
+    pub async fn start(
+        beacon_chain: Arc<BeaconChain<T>>,
+        config: &NetworkConfig,
+        executor: task_executor::TaskExecutor,
+    ) -> error::Result<(
+        Arc<NetworkGlobals<T::EthSpec>>,
+        mpsc::UnboundedSender<NetworkMessage<T::EthSpec>>,
+    )> {
+        let network_log = executor.log().clone();
+        // build the network channel
+        let (network_send, network_recv) = mpsc::unbounded_channel::<NetworkMessage<T::EthSpec>>();
+
+        // router task
+        let router_send = Router::spawn(
+            beacon_chain.clone(),
+            network_globals.clone(),
+            network_send.clone(),
+            executor.clone(),
+            network_log.clone(),
+        )?;
+    }
+
+```
+
+When a new NetworkService is spawned:
+
+```rust
+fn spawn_service<T: BeaconChainTypes>(
+    executor: task_executor::TaskExecutor,
+    mut service: NetworkService<T>,
+) {
+    let mut shutdown_sender = executor.shutdown_sender();
+
+    // spawn on the current executor
+    executor.spawn(async move {
+
+        let mut metric_update_counter = 0;
+        loop {
+            // build the futures to check simultaneously
+            tokio::select! {
+
+```
+
+Here the NetworkService constantly polls the service, and if a new event is received from libp2p, it's sent to the router for processing.
+
+
+![diagram2](/images/11.png)
+
+```rust
+impl<T: BeaconChainTypes> Router<T> {
+    /// Initializes and runs the Router.
+    pub fn spawn(
+        beacon_chain: Arc<BeaconChain<T>>,
+        network_globals: Arc<NetworkGlobals<T::EthSpec>>,
+        network_send: mpsc::UnboundedSender<NetworkMessage<T::EthSpec>>,
+        executor: task_executor::TaskExecutor,
+        log: slog::Logger,
+    ) -> error::Result<mpsc::UnboundedSender<RouterMessage<T::EthSpec>>> {
+        let message_handler_log = log.new(o!("service"=> "router"));
+        trace!(message_handler_log, "Service starting");
+
+        let (handler_send, handler_recv) = mpsc::unbounded_channel();
+
+        // Initialise a message instance, which itself spawns the syncing thread.
+        let processor = Processor::new(
+            executor.clone(),
+            beacon_chain,
+            network_globals.clone(),
+            network_send,
+            &log,
+        );
+
+        // generate the Message handler
+        let mut handler = Router {
+            network_globals,
+            processor,
+            log: message_handler_log,
+        };
+
+        // spawn handler task and move the message handler instance into the spawned thread
+        executor.spawn(
+            async move {
+                debug!(log, "Network message router started");
+                UnboundedReceiverStream::new(handler_recv)
+                    .for_each(move |msg| future::ready(handler.handle_message(msg)))
+                    .await;
+            },
+            "router",
+        );
+
+        Ok(handler_send)
+    }
+```
+
+Here we can see the initialization of a router where a new handler channel is created to receive messages from the NetworkService. The "handler_send" is returned to the NetworkService to send messages to the Router.
+
+The router folder also contains a Processor struct, which acts like an abstraction for the BeaconProcessor.
+
+![diagram2](/images/12.png)
+
+```rust
+/// Processes validated messages from the network. It relays necessary data to the syncing thread
+/// and processes blocks from the pubsub network.
+pub struct Processor<T: BeaconChainTypes> {
+    chain: Arc<BeaconChain<T>>,
+    /// A channel to the syncing thread.
+    sync_send: mpsc::UnboundedSender<SyncMessage<T::EthSpec>>,
+    /// A network context to return and handle RPC requests.
+    network: HandlerNetworkContext<T::EthSpec>,
+    beacon_processor_send: mpsc::Sender<BeaconWorkEvent<T>>,
+}
+```
+
+It has 3 channels being defined:
+
+1. "network"—The network channel is passed from the NetworkService, which is passed to the BeaconProcessor to send stuff back to the NetworkService.
+2. "beacon_processor_send" - A channel to send events to the BeaconProcessor.
+
+
+```rust
+impl<T: BeaconChainTypes> Processor<T> {
+    /// Instantiate a `Processor` instance
+    pub fn new(
+        executor: task_executor::TaskExecutor,
+        beacon_chain: Arc<BeaconChain<T>>,
+        network_globals: Arc<NetworkGlobals<T::EthSpec>>,
+        network_send: mpsc::UnboundedSender<NetworkMessage<T::EthSpec>>,
+        log: &slog::Logger,
+    ) -> Self {
+        let sync_logger = log.new(o!("service"=> "sync"));
+        let (beacon_processor_send, beacon_processor_receive) =
+            mpsc::channel(MAX_WORK_EVENT_QUEUE_LEN);
+
+```
+
+A channel is created, and a new BeaconProcessor is created with "beacon_processor_receive" to send events to.
+
+```rust
+        BeaconProcessor {
+            beacon_chain: Arc::downgrade(&beacon_chain),
+            network_tx: network_send.clone(),
+            sync_tx: sync_send.clone(),
+            network_globals,
+            executor,
+            max_workers: cmp::max(1, num_cpus::get()),
+            current_workers: 0,
+            log: log.clone(),
+        }
+        .spawn_manager(beacon_processor_receive, None);
+```
+
+---
+
+## BeaconProcessor
+
+![diagram2](/images/13.png)
+
+Lots of paths so far and finally we've come to where the actual changes are read and written to the BeaconChain.
+
+Here we have a WorkEvent struct:
+
+```rust
+pub struct WorkEvent<T: BeaconChainTypes> {
+    drop_during_sync: bool,
+    work: Work<T>,
+}
+```
+
+where the Work being:
+
+```rust
+pub enum Work<T: BeaconChainTypes> {
+    GossipAttestation {
+        message_id: MessageId,
+        peer_id: PeerId,
+        attestation: Box<Attestation<T::EthSpec>>,
+        subnet_id: SubnetId,
+        should_import: bool,
+        seen_timestamp: Duration,
+    },
+    
+    ,
+    
+        Status {
+        peer_id: PeerId,
+        message: StatusMessage,
+    },
+    BlocksByRangeRequest {
+        peer_id: PeerId,
+        request_id: PeerRequestId,
+        request: BlocksByRangeRequest,
+    },
+    BlocksByRootsRequest {
+        peer_id: PeerId,
+        request_id: PeerRequestId,
+        request: BlocksByRootRequest,
+    },
+```
+
+
+The event_rx channel is where the Processor sends the beacon processor the work, just like I said above.
+
+The BeaconProcessor spawns a manager that is constantly being looped, checking for events happening.
+
+```rust
+        let manager_future = async move {
+            let mut inbound_events = InboundEvents {
+                idle_rx,
+                event_rx,
+                reprocess_work_rx: ready_work_rx,
+            };
+
+            loop {
+                let work_event = match inbound_events.next().await {
+                    Some(InboundEvent::WorkerIdle) => {
+                        self.current_workers = self.current_workers.saturating_sub(1);
+                        None
+                    }
+                    Some(InboundEvent::WorkEvent(event))
+                    | Some(InboundEvent::ReprocessingWork(event)) => Some(event),
+                    None => {
+                        debug!(
+                            self.log,
+                            "Gossip processor stopped";
+                            "msg" => "stream ended"
+                        );
+                        break;
+                    }
+                };
+```
+
+Here the idle channel is for use by workers when they've finished a task.
+
+InboundEvents is a stream that sends the manager when a new work is received through a channel.
+
+
+```rust
+/// Combines the various incoming event streams for the `BeaconProcessor` into a single stream.
+///
+/// This struct has a similar purpose to `tokio::select!`, however it allows for more fine-grained
+/// control (specifically in the ordering of event processing).
+struct InboundEvents<T: BeaconChainTypes> {
+    /// Used by workers when they finish a task.
+    idle_rx: mpsc::Receiver<()>,
+    /// Used by upstream processes to send new work to the `BeaconProcessor`.
+    event_rx: mpsc::Receiver<WorkEvent<T>>,
+    /// Used internally for queuing work ready to be re-processed.
+    reprocess_work_rx: mpsc::Receiver<ReadyWork<T>>,
+}
+
+impl<T: BeaconChainTypes> Stream for InboundEvents<T> {
+    type Item = InboundEvent<T>;
+
+    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        // Always check for idle workers before anything else. This allows us to ensure that a big
+        // stream of new events doesn't suppress the processing of existing events.
+        match self.idle_rx.poll_recv(cx) {
+            Poll::Ready(Some(())) => {
+                return Poll::Ready(Some(InboundEvent::WorkerIdle));
+            }
+            Poll::Ready(None) => {
+                return Poll::Ready(None);
+            }
+            Poll::Pending => {}
+        }
+```
+
+When a new Work is received first it checks if there is an available worker.
+
+```rust
+                    }
+                    // There is a new work event and the chain is not syncing. Process it or queue
+                    // it.
+                    Some(WorkEvent { work, .. }) => {
+                        let work_id = work.str_id();
+                        let toolbox = Toolbox {
+                            idle_tx: idle_tx.clone(),
+                            work_reprocessing_tx: work_reprocessing_tx.clone(),
+                        };
+
+                        match work {
+                            _ if can_spawn => self.spawn_worker(work, toolbox),
+                            Work::GossipAttestation { .. } => attestation_queue.push(work),
+                            // Attestation batches are formed internally within the
+                            // `BeaconProcessor`, they are not sent from external services.
+                            Work::
+```
+
+can_spawn being:
+
+```rust
+                let can_spawn = self.current_workers < self.max_workers;
+```
+
+If a Worker is not available it's pushed into a FIFO queue.
+
+Now suppose a Worker is available right now, then a new worker is spawned for their respective work.
+
+```rust
+    /// Spawns a blocking worker thread to process some `Work`.
+    ///
+    /// Sends an message on `idle_tx` when the work is complete and the task is stopping.
+    fn spawn_worker(&mut self, work: Work<T>, toolbox: Toolbox<T>) {
+        let idle_tx = toolbox.idle_tx;
+        let work_reprocessing_tx = toolbox.work_reprocessing_tx;
+
+```
+
+Depending on the Work:
+
+```rust
+                     */
+                    Work::Status { peer_id, message } => worker.process_status(peer_id, message),
+                    /*
+                     * Processing of range syncing requests from other peers.
+                     */
+                    Work::BlocksByRangeRequest {
+                        peer_id,
+                        request_id,
+                        request,
+                    } => worker.handle_blocks_by_range_request(peer_id, request_id, request),
+                    /*
+                     * Processing of blocks by roots requests from other peers.
+                     */
+                    Work::BlocksByRootsRequest {
+                        peer_id,
+                        request_id,
+                        request,
+                    } => worker.handle_blocks_by_root_request(peer_id, request_id, request),
+
+```
+
+The work is matched and sent to their respective functions.
+
+![diagram2](/images/14.png)
+
+We have 
+
+![diagram2](/images/16.png)
+
+All these functions are defined for rpc methods.
+
+For example, here is the BlocksByRange request:
+
+![diagram2](/images/15.png)
+
+Voila! We've finally hit the actual BeaconChain!
+
+Now sending response is through the network channel created at the NetworkService 
+
+```rust
+    pub fn send_response(
+        &self,
+        peer_id: PeerId,
+        response: Response<T::EthSpec>,
+        id: PeerRequestId,
+    ) {
+        self.send_network_message(NetworkMessage::SendResponse {
+            peer_id,
+            id,
+            response,
+        })
+    }
+```
+
+![diagram2](/images/17.png)
+
+Which is received by the NetworkService struct.
+
+Here I'm again providing the diagram
+
+
+![diagram2](/images/18.png)
+
+In NetworkService we can see the channel being polled constantly:
+
+![diagram2](/images/19.png)
+
+Which directly sends the responses through libp2p!
+
+
+---
 
