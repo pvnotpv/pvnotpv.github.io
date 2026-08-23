@@ -1,10 +1,11 @@
 ---
-title: Lighthouse - LifeCycle of a message from LibP2P to BeaconProcessor to the BeaconChain
+title: Lighthouse Networking - LifeCycle of a message from LibP2P to BeaconProcessor to the BeaconChain
 date: 2026-08-23
 categories: [consensus]
 tags: [ethereum, lighthouse, core, networking]     
 description: Mapping out the entire Network stack of Lighthouse from top to bottom.
 published: true
+pin: true
 ---
 
 So again, I'm really at the end phase of my journey, deep into Lighthouse phase 0, and kind of regret not making notes of some other parts of the codebase. I decided not to make the mistake on the networking part and am now going to make a diagrammatic explanation because the amount of context you'd have to keep in your head is kind of insane considering the vast size of the codebase...
