@@ -12,6 +12,8 @@ So again, I'm really at the end phase of my journey, deep into Lighthouse phase 
 
 Honestly, it's my first time writing such a huge article, so I'm trying my best to make it count!
 
+My discord: pvnotpv
+
 Here is the complete mapping of the NetworkStack:
 
 ![diagram1](/images/lighthousenet.png)
