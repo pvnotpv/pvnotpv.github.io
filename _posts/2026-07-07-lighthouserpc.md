@@ -5,6 +5,7 @@ categories: [ethereum]
 tags: [consensus]    
 pin: true
 description: Code level review on the implementation of Phase0 consensus specification
+published: false
 ---
 
 PS - This is ongoing; I will be updating it from time to time before making the full post.
