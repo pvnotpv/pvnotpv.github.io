@@ -1,8 +1,8 @@
 ---
-title: Lighthouse Networking - LifeCycle of a message from LibP2P to BeaconProcessor to the BeaconChain
+title: Ethereum Lighthouse - LifeCycle of a message from LibP2P to BeaconProcessor to the BeaconChain
 date: 2026-08-23
-categories: [consensus]
-tags: [ethereum, lighthouse, core, networking]     
+categories: [consensus, ethereum]
+tags: [core, networking]     
 description: Mapping out the entire Network stack of Lighthouse from top to bottom.
 published: true
 pin: true
