@@ -1,6 +1,6 @@
 ---
 title: EthHash PoW Consensus - Block building and the filling up of transactions
-date: 2026-09-29
+date: 2026-09-28
 categories: [ethereum, consensus]
 tags: [ethhash, geth, mining, pow, blockbuilding]    
 pin: true
