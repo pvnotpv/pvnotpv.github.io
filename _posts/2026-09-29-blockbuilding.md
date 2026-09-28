@@ -1,8 +1,8 @@
 ---
 title: EthHash PoW Consensus - Block building and the filling up of transactions
-date: 2026-09-23
-categories: [ethereum]
-tags: [ethhash, dagger, hashimoto, mining, pow, blockbuilding]    
+date: 2026-09-29
+categories: [ethereum, consensus]
+tags: [ethhash, geth, mining, pow, blockbuilding]    
 pin: true
 description: The complete process on how a block gets built on geth.
 ---
